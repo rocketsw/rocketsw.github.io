@@ -1,0 +1,133 @@
+<title>Percent Change Calculator</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --text: #1d1d1f;
+    --muted: #6e6e73;
+    --accent: #0071e3;
+    --border: #d2d2d7;
+    --pos: #1a7f37;
+    --neg: #c0392b;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1c1e;
+      --card: #2c2c2e;
+      --text: #f5f5f7;
+      --muted: #a1a1a6;
+      --border: #3a3a3c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 24px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+  h1 {
+    font-size: 20px;
+    margin: 0 0 24px;
+    text-align: center;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    margin-top: 16px;
+  }
+  label:first-of-type { margin-top: 0; }
+  input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+  }
+  input[type="number"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+  }
+  .result {
+    margin-top: 24px;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--bg);
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .result .value {
+    font-size: 28px;
+    font-weight: 600;
+  }
+  .result .placeholder {
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .positive { color: var(--pos); }
+  .negative { color: var(--neg); }
+</style>
+
+<div class="card">
+  <h1>Percent Change Calculator</h1>
+  <label for="initial">Initial value</label>
+  <input type="number" id="initial" step="any" placeholder="e.g. 50" />
+
+  <label for="final">Final value</label>
+  <input type="number" id="final" step="any" placeholder="e.g. 75" />
+
+  <div class="result" id="result">
+    <span class="placeholder">Enter both values</span>
+  </div>
+</div>
+
+<script>
+  const initialInput = document.getElementById('initial');
+  const finalInput = document.getElementById('final');
+  const resultEl = document.getElementById('result');
+
+  function update() {
+    const initial = parseFloat(initialInput.value);
+    const final = parseFloat(finalInput.value);
+
+    if (Number.isNaN(initial) || Number.isNaN(final)) {
+      resultEl.innerHTML = '<span class="placeholder">Enter both values</span>';
+      return;
+    }
+
+    if (initial === 0) {
+      resultEl.innerHTML = '<span class="placeholder">Initial value can\'t be zero</span>';
+      return;
+    }
+
+    const change = ((final - initial) / Math.abs(initial)) * 100;
+    const sign = change > 0 ? '+' : '';
+    const cls = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+    resultEl.innerHTML = `<span class="value ${cls}">${sign}${change.toFixed(2)}%</span>`;
+  }
+
+  initialInput.addEventListener('input', update);
+  finalInput.addEventListener('input', update);
+</script>
