@@ -1,0 +1,143 @@
+<!-- *** HTML page boilerplate/template *** (see below) -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>Boilerplate HTML Page</title>
+
+   <!-- Read in Javascript file
+	 <script src="./scripts/javascript_file.js" async>
+	  // Javascript that modify DOM elements should not be in <head> or at the top of the <body> without using the 'async' attribute. Event handler functions are ok to put in <head> scripts without 'async'.
+	  // Can put the <script> tag inside the <body> tag or after the <body> tag.  Not an issue for small scripts, but large scripts slow down the page display.  
+	 </script>
+
+	 <script src="https://domainame.org/javascript.min.js"> </script>
+   -->
+
+   <!-- Read in external css files
+	 <link rel="stylesheet" href="./styles.css">
+     <link rel="stylesheet" href="https://www.domainname.com/some.css">
+   -->
+   <!-- Below is internal CSS. Can use internal CSS this way or move <style> section to external .css file and use the <link> above to load it.
+   -->
+
+   <!-- :root selector below defines global var 'size18rem' -->
+   <!-- Always include 'html' and '*' lines in 'style' below -->
+   <style>
+	 html { box-sizing: border-box; }
+     *, ::before, ::after  { box-sizing: inherit; }
+
+	 :root {
+		--size18rem: 1.8rem;
+	 }
+	 
+	 .blackborder { border: 2px solid black; border-radius: 10px; }
+	 .whiteborder { border: 2px solid white; }
+	 .font18rem { font-size: var(--size18rem); }	 
+
+	 .mainclass { 
+	   display: flex; 
+	   flex-direction: column;
+	   align-items:flex-start;
+	   margin: 0px 50px 0px 50px 
+	 }
+	 .title { 
+	   color:blue; 
+	   font-family:serif; 
+	   align-self: center;
+	 }
+	 #demo {
+	   font-family: Arial;
+	   font-size: 1.5rem;
+	   margin: 1rem 0 1rem 0;
+	 }
+
+     html {
+       color-scheme: light dark;
+     }
+     body {
+       font-family: system-ui;
+       font-size: 1.25rem;
+       line-height: 1.5;
+     }
+     main {
+       width: max(65ch, 100% - var(--size2rem));
+       margin-inline: auto;
+     }
+     img, 
+     picture,
+     svg {
+       max-width: 100%;
+       display: block;  
+     }
+   </style>
+  </head>
+
+  <body>
+    <main>
+		<div class="mainclass">
+		  <h1 class="title">Hello World</h1>
+		  
+		  <img
+			src="https://url.com/images/image-file.png" style="display: none"
+			alt="Remote Image not found"
+		  />
+		  <img src="image.png" style="margin:3rem 0rem;" alt="This should be a local image.  It is demonstrating alternative text when the image is not found." />
+
+		  <a href="#demo">Link demo.</a>
+		  <p style="margin:0.5rem 0 1rem 0;">Link/anchor above jumps to element with 'id=demo' on this page.  Probably nothing happens since the demo id isn't far below.</p>
+		  
+		  <div class="blackborder font18rem" style="width: 50%; padding:10px;">This element uses one CSS class to specify font size and another class to specify border style.</div>
+
+		  <p>NOTE: Open the source .html file for this page with a text editor to read more info about <span style="color:red;">HTML</span> and <span style="color:blue;">CSS</span>.</p>
+
+		  <div id="demo"></div>
+		</div>  
+    </main>
+    <script>
+      /* 
+       There can be multiple <script> tags on a page. If a <script> tag has a 'src' attribute, it reads in a file.
+	   A script tag can go in the <head> section or anywhere in the <body>.  It is often at the end of the <body> because the script might modify HTML elements that are created in the body.
+      */
+	  
+      document.getElementById("demo").innerHTML = "This text was changed by JavaScript! There is an html &lt;div&gt; element on this page with an id='demo'.  The script calls document.getElementById('demo').innerHTML=... to set/change the &lt;div&gt; text.";
+	  
+    </script>
+  </body>
+</html>
+
+<!-- *** end boilerplate/template *** -->
+
+<!--  comment out the rest of this file so it does not try to appear when view in a browser.
+
+<!DOCTYPE html> tells the web browser to render the page in full HTML5 standards mode. It is not an HTML tag itself, but rather an instruction to the browser. 
+
+
+W3School code spaces
+https://cv-space1.w3spaces.com/puzzle.html
+   
+CSS above is used to improve most pages
+--------------------------
+meta "viewport" line says width of screen is width of device, initial zoom level is 1.0
+html color-scheme - let user system preferences decide theme
+body - syetm font, larger font size and line height
+img - fix overflowing images
+main - create container to keep content off sides.  instead of 'main' element, could use #id or .classname on a wrapper 'div'
+By default, the width and height of an element is calculated like this:
+  width + padding + border = actual width of an element
+  height + padding + border = actual height of an element
+The CSS 'box-sizing:border-box' property includes the padding and border in an element's total width and height.
+
+ 
+-->
+
+
+ 
+ 
+ 
+ 
+
+
+
