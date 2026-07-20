@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>15 Puzzle</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #d8d8d8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+  }
+
+  h1 {
+    margin-bottom: 4px;
+    color: #333;
+  }
+
+  #status {
+    height: 24px;
+    margin-bottom: 12px;
+    font-weight: bold;
+    color: #2a7d2a;
+  }
+
+  #board {
+    position: relative;
+    width: 335px;
+    height: 335px;
+    background: #444;
+    border-radius: 6px;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.5), 0 4px 10px rgba(0,0,0,0.3);
+    padding: 8px;
+    box-sizing: border-box;
+	margin-top: 10px;
+  }
+
+  .tile {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    box-sizing: border-box;
+    background: linear-gradient(to bottom, #f5f5f5, #dcdcdc);
+    border: 1px solid #999;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 0 2px 3px rgba(0,0,0,0.3);
+    transition: top 0.15s ease, left 0.15s ease;
+  }
+
+  .tile:hover {
+    background: linear-gradient(to bottom, #ffffff, #e6e6e6);
+  }
+
+  .tile.empty {
+    visibility: hidden;
+    cursor: default;
+  }
+
+  #scrambleBtn {
+    margin-top: 20px;
+    padding: 10px 22px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background: #3b6fd6;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  #scrambleBtn:hover {
+    background: #2f5cb8;
+  }
+</style>
+</head>
+<body>
+
+<h1>15 Puzzle</h1>
+<div id="status" style="color:blue;font-size:30px;">&nbsp;</div>
+<div id="board"></div>
+<button id="scrambleBtn">Scramble</button>
+
+<script>
+  const SIZE = 4;
+  const TILE_PX = 80;
+  const GAP_PX = 8; // spacing between tiles, matches board padding
+  const boardEl = document.getElementById('board');
+  const statusEl = document.getElementById('status');
+  const scrambleBtn = document.getElementById('scrambleBtn');
+
+  // board[row][col] = value; 0 represents the empty space
+  let board = [];
+  let emptyRow, emptyCol;
+  let tileEls = {}; // value -> DOM element
+
+  function makeSolvedBoard() {
+    const b = [];
+    let v = 1;
+    for (let r = 0; r < SIZE; r++) {
+      const row = [];
+      for (let c = 0; c < SIZE; c++) {
+        row.push(r === SIZE - 1 && c === SIZE - 1 ? 0 : v++);
+      }
+      b.push(row);
+    }
+    return b;
+  }
+
+  function findEmpty() {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (board[r][c] === 0) return { r, c };
+      }
+    }
+  }
+
+  function buildTiles() {
+    boardEl.innerHTML = '';
+    tileEls = {};
+    for (let v = 1; v <= 15; v++) {
+      const el = document.createElement('div');
+      el.className = 'tile';
+      el.textContent = v;
+      el.addEventListener('click', () => onTileClick(v));
+      boardEl.appendChild(el);
+      tileEls[v] = el;
+    }
+  }
+
+  function positionFor(r, c) {
+    return {
+      top: GAP_PX + r * TILE_PX,
+      left: GAP_PX + c * TILE_PX
+    };
+  }
+
+  function render() {
+    const empty = findEmpty();
+    emptyRow = empty.r;
+    emptyCol = empty.c;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        const v = board[r][c];
+        if (v === 0) continue;
+        const pos = positionFor(r, c);
+        const el = tileEls[v];
+        el.style.top = pos.top + 'px';
+        el.style.left = pos.left + 'px';
+      }
+    }
+  }
+
+  function findTile(v) {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (board[r][c] === v) return { r, c };
+      }
+    }
+  }
+
+  // Move the clicked tile toward the empty space. If adjacent, simple swap.
+  // If in the same row/col but not adjacent, shift every tile between it
+  // and the empty space over by one, sliding the whole line.
+  function onTileClick(value) {
+    const { r, c } = findTile(value);
+
+    if (r === emptyRow && c === emptyCol) return;
+
+    const sameRow = r === emptyRow;
+    const sameCol = c === emptyCol;
+    if (!sameRow && !sameCol) return; // not movable
+
+    if (sameRow) {
+      const step = emptyCol > c ? -1 : 1;
+      for (let col = emptyCol; col !== c; col += step) {
+        board[r][col] = board[r][col + step];
+      }
+      board[r][c] = 0;
+    } else {
+      const step = emptyRow > r ? -1 : 1;
+      for (let row = emptyRow; row !== r; row += step) {
+        board[row][c] = board[row + step][c];
+      }
+      board[r][c] = 0;
+    }
+
+    render();
+    checkWin();
+  }
+
+  function isSolved() {
+    let v = 1;
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (r === SIZE - 1 && c === SIZE - 1) {
+          if (board[r][c] !== 0) return false;
+        } else {
+          if (board[r][c] !== v++) return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function checkWin() {
+    if (isSolved()) {
+      statusEl.textContent = 'You Solved It!';
+	  console.log("Solved");
+    } else {
+      statusEl.textContent = ' ';
+	  console.log("Not Solved");
+    }
+  }
+
+  // Scramble by making a long sequence of random legal single-step moves
+  // from the solved state, guaranteeing the result stays solvable.
+  function scramble() {
+    board = makeSolvedBoard();
+    let empty = findEmpty();
+    emptyRow = empty.r;
+    emptyCol = empty.c;
+
+    let lastMoved = -1;
+    const MOVES = 300;
+    for (let i = 0; i < MOVES; i++) {
+      const neighbors = [];
+      if (emptyRow > 0) neighbors.push({ r: emptyRow - 1, c: emptyCol });
+      if (emptyRow < SIZE - 1) neighbors.push({ r: emptyRow + 1, c: emptyCol });
+      if (emptyCol > 0) neighbors.push({ r: emptyRow, c: emptyCol - 1 });
+      if (emptyCol < SIZE - 1) neighbors.push({ r: emptyRow, c: emptyCol + 1 });
+
+      // avoid immediately undoing the previous move so the shuffle mixes better
+      const candidates = neighbors.filter(n => board[n.r][n.c] !== lastMoved);
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+
+      lastMoved = board[pick.r][pick.c];
+      board[emptyRow][emptyCol] = lastMoved;
+      board[pick.r][pick.c] = 0;
+      emptyRow = pick.r;
+      emptyCol = pick.c;
+    }
+
+    // Extremely unlikely, but if we landed on solved, do one more move.
+    if (isSolved()) {
+      const neighbors = [];
+      if (emptyRow > 0) neighbors.push({ r: emptyRow - 1, c: emptyCol });
+      if (emptyCol > 0) neighbors.push({ r: emptyRow, c: emptyCol - 1 });
+      const pick = neighbors[0];
+      board[emptyRow][emptyCol] = board[pick.r][pick.c];
+      board[pick.r][pick.c] = 0;
+    }
+
+    render();
+    statusEl.textContent = ' ';
+  }
+
+  scrambleBtn.addEventListener('click', scramble);
+
+  buildTiles();
+  scramble();
+</script>
+</body>
+</html>
