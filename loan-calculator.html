@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Calculator</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 1rem;
+            background-color: #f9fafb;
+            color: #111827;
+        }
+        .calculator-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1d4ed8;
+        }
+        .results {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+            display: none; /* Hidden until calculated */
+        }
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+        }
+        .result-value {
+            font-weight: 600;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #2563eb;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-link">← Back to Index</a>
+
+    <div class="calculator-card">
+        <h1>Loan Calculator</h1>
+        
+        <div class="form-group">
+            <label for="amount">Loan Amount ($)</label>
+            <input type="number" id="amount" placeholder="e.g. 25000" min="0" step="0.01">
+        </div>
+        
+        <div class="form-group">
+            <label for="term">Term (Months)</label>
+            <input type="number" id="term" placeholder="e.g. 60" min="1" step="1">
+        </div>
+        
+        <div class="form-group">
+            <label for="rate">Annual Interest Rate (%)</label>
+            <input type="number" id="rate" placeholder="e.g. 5.5" min="0" step="0.01">
+        </div>
+        
+        <button onclick="calculateLoan()">Calculate</button>
+
+        <div class="results" id="results">
+            <div class="result-row">
+                <span>Monthly Payment:</span>
+                <span class="result-value" id="monthlyPayment">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span>Total Interest:</span>
+                <span class="result-value" id="totalInterest">$0.00</span>
+            </div>
+            <div class="result-row">
+                <span>Total Payment:</span>
+                <span class="result-value" id="totalPayment">$0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateLoan() {
+            // Retrieve and parse inputs
+            const amount = parseFloat(document.getElementById('amount').value);
+            const months = parseInt(document.getElementById('term').value);
+            const annualRate = parseFloat(document.getElementById('rate').value);
+
+            // Basic validation
+            if (isNaN(amount) || isNaN(months) || isNaN(annualRate) || amount <= 0 || months <= 0 || annualRate < 0) {
+                alert('Please enter valid positive numbers for all fields.');
+                return;
+            }
+
+            // Convert annual rate percentage to a decimal monthly rate
+            const monthlyRate = (annualRate / 100) / 12;
+            
+            let monthlyPayment = 0;
+            let totalPayment = 0;
+            let totalInterest = 0;
+
+            if (monthlyRate === 0) {
+                // Handle 0% interest edge case
+                monthlyPayment = amount / months;
+                totalPayment = amount;
+                totalInterest = 0;
+            } else {
+                // Standard amortization formula
+                const compoundFactor = Math.pow(1 + monthlyRate, months);
+                monthlyPayment = amount * (monthlyRate * compoundFactor) / (compoundFactor - 1);
+                totalPayment = monthlyPayment * months;
+                totalInterest = totalPayment - amount;
+            }
+
+            // Format numbers as standard USD currency
+            const formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            });
+
+            // Update DOM
+            document.getElementById('monthlyPayment').textContent = formatter.format(monthlyPayment);
+            document.getElementById('totalInterest').textContent = formatter.format(totalInterest);
+            document.getElementById('totalPayment').textContent = formatter.format(totalPayment);
+            
+            // Unhide results div
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
