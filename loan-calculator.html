@@ -91,8 +91,8 @@
         <h1>Loan Calculator</h1>
         
         <div class="form-group">
-            <label for="amount">Loan Amount ($)</label>
-            <input type="number" id="amount" placeholder="e.g. 25000" min="0" step="0.01">
+            <label for="principal">Loan Amount ($)</label>
+            <input type="number" id="principal" placeholder="e.g. 25000" min="0" step="0.01">
         </div>
         
         <div class="form-group">
@@ -101,7 +101,7 @@
         </div>
         
         <div class="form-group">
-            <label for="rate">Annual Interest Rate (%)</label>
+            <label for="rate">Annual Interest Rate (as %)</label>
             <input type="number" id="rate" placeholder="e.g. 5.5" min="0" step="0.01">
         </div>
         
@@ -126,34 +126,38 @@
     <script>
         function calculateLoan() {
             // Retrieve and parse inputs
-            const amount = parseFloat(document.getElementById('amount').value);
-            const months = parseInt(document.getElementById('term').value);
+            const principal = parseFloat(document.getElementById('principal').value);
+            const termMonths = parseInt(document.getElementById('term').value);
             const annualRate = parseFloat(document.getElementById('rate').value);
 
             // Basic validation
-            if (isNaN(amount) || isNaN(months) || isNaN(annualRate) || amount <= 0 || months <= 0 || annualRate < 0) {
+            if (isNaN(principal) || isNaN(termMonths) || isNaN(annualRate) || principal <= 0 || termMonths <= 0 || annualRate < 0) {
                 alert('Please enter valid positive numbers for all fields.');
                 return;
             }
 
             // Convert annual rate percentage to a decimal monthly rate
-            const monthlyRate = (annualRate / 100) / 12;
-            
+            const rawMonthlyRate = ((annualRate/100) / 12);
+            const roundedMonthlyRate = Math.round(rawMonthlyRate * 1000000) / 1000000;			
+			
             let monthlyPayment = 0;
             let totalPayment = 0;
             let totalInterest = 0;
 
-            if (monthlyRate === 0) {
+            if (rawMonthlyRate === 0) {
                 // Handle 0% interest edge case
-                monthlyPayment = amount / months;
-                totalPayment = amount;
+                monthlyPayment = principal / termMonths;
+                totalPayment = principal;
                 totalInterest = 0;
             } else {
                 // Standard amortization formula
-                const compoundFactor = Math.pow(1 + monthlyRate, months);
-                monthlyPayment = amount * (monthlyRate * compoundFactor) / (compoundFactor - 1);
-                totalPayment = monthlyPayment * months;
-                totalInterest = totalPayment - amount;
+                const compoundFactor = Math.pow(1 + roundedMonthlyRate, termMonths);
+                console.log("Principal=",principal,", Term in Months=", termMonths,", Annual Interest Rate=", annualRate/100); 
+                console.log("Rounded Monthly Interest Rate=", roundedMonthlyRate,", (1+roundedMonthlyRate)^termMonths=", compoundFactor);
+				
+                monthlyPayment = principal * ((roundedMonthlyRate * compoundFactor) / (compoundFactor - 1));
+                totalPayment = monthlyPayment * termMonths;
+                totalInterest = totalPayment - principal;
             }
 
             // Format numbers as standard USD currency
